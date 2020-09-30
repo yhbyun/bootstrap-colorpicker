@@ -538,50 +538,57 @@
       var c = false;
 
       switch (format) {
-        case 'rgb': {
-          c = this.toRGB();
-          if (this.rgbaIsTransparent(c)) {
-            return 'transparent';
+        case 'rgb':
+          {
+            c = this.toRGB();
+            if (this.rgbaIsTransparent(c)) {
+              return 'transparent';
+            }
+            return 'rgb(' + c.r + ',' + c.g + ',' + c.b + ')';
           }
-          return 'rgb(' + c.r + ',' + c.g + ',' + c.b + ')';
-        }
-        break;
-      case 'rgba': {
-        c = this.toRGB();
-        return 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + c.a + ')';
-      }
-      break;
-      case 'hsl': {
-        c = this.toHSL();
-        return 'hsl(' + Math.round(c.h * 360) + ',' + Math.round(c.s * 100) + '%,' + Math.round(c.l * 100) + '%)';
-      }
-      break;
-      case 'hsla': {
-        c = this.toHSL();
-        return 'hsla(' + Math.round(c.h * 360) + ',' + Math.round(c.s * 100) + '%,' + Math.round(c.l * 100) + '%,' + c.a + ')';
-      }
-      break;
-      case 'hex': {
-        return this.toHex(forceRawValue);
-      }
-      break;
-      case 'alias': {
-        c = this.toAlias();
+          break;
+        case 'rgba':
+          {
+            c = this.toRGB();
+            return 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + c.a + ')';
+          }
+          break;
+        case 'hsl':
+          {
+            c = this.toHSL();
+            return 'hsl(' + Math.round(c.h * 360) + ',' + Math.round(c.s * 100) + '%,' + Math.round(c.l * 100) + '%)';
+          }
+          break;
+        case 'hsla':
+          {
+            c = this.toHSL();
+            return 'hsla(' + Math.round(c.h * 360) + ',' + Math.round(c.s * 100) + '%,' + Math.round(c.l * 100) + '%,' + c.a + ')';
+          }
+          break;
+        case 'hex':
+          {
+            return this.toHex(forceRawValue);
+          }
+          break;
+        case 'alias':
+          {
+            c = this.toAlias();
 
-        if (c === false) {
-          return this.toString(forceRawValue, this.getValidFallbackFormat());
-        }
+            if (c === false) {
+              return this.toString(forceRawValue, this.getValidFallbackFormat());
+            }
 
-        if (translateAlias && !(c in Color.webColors) && (c in this.predefinedColors)) {
-          return this.predefinedColors[c];
-        }
+            if (translateAlias && !(c in Color.webColors) && (c in this.predefinedColors)) {
+              return this.predefinedColors[c];
+            }
 
-        return c;
-      }
-      default: {
-        return c;
-      }
-      break;
+            return c;
+          }
+        default:
+          {
+            return c;
+          }
+          break;
       }
     },
     // a set of RE's that can match strings and generate color tuples.
@@ -1020,6 +1027,33 @@
 
       return val;
     },
+    // reset picker to non-selected
+    resetPicker: function() {
+      var icns = this.picker.find('i');
+      if (icns.length === 0) {
+        return;
+      }
+      if (this.options.horizontal === false) {
+        icns.eq(1).css('top', '').end()
+          .eq(2).css('top', '');
+      } else {
+        icns.eq(1).css('left', '').end()
+          .eq(2).css('left', '');
+      }
+      icns.eq(0).css({
+        'top': '',
+        'left': ''
+      });
+
+      this.picker.find('.colorpicker-saturation')
+        .css('backgroundColor', '');
+
+      this.picker.find('.colorpicker-alpha')
+        .css('backgroundColor', '');
+
+      this.picker.find('.colorpicker-color, .colorpicker-color div')
+        .css('backgroundColor', '');
+    },
     updateComponent: function(val) {
       var color;
 
@@ -1044,6 +1078,21 @@
 
       return color.toString(false, this.format);
     },
+    // remove the component's backgroundColor
+    resetComponent: function() {
+      if (this.component !== false) {
+        var icn = this.component.find('i').eq(0);
+        if (icn.length > 0) {
+          icn.css({
+            'backgroundColor': ''
+          });
+        } else {
+          this.component.css({
+            'backgroundColor': ''
+          });
+        }
+      }
+    },
     update: function(force) {
       var val;
       if ((this.getValue(false) !== false) || (force === true)) {
@@ -1064,6 +1113,27 @@
         color: this.color,
         value: val
       });
+    },
+    // reset color picker to non-selected
+    empty: function() {
+      // this.color = this.createColor('#ffffff');
+      this.resetComponent();
+
+      // update input
+      if (this.input !== false) {
+        this.input.prop('value', '');
+        this.input.trigger('change');
+      }
+
+      // update data
+      this.element.data('color', '');
+
+      this.resetPicker();
+      // this.element.trigger({
+      //   type: 'changeColor',
+      //   color: this.color,
+      //   value: ''
+      // });
     },
     /**
      * Creates a new color using the instance options
