@@ -268,6 +268,33 @@ Colorpicker.prototype = {
 
     return val;
   },
+  // reset picker to non-selected
+  resetPicker: function() {
+    var icns = this.picker.find('i');
+    if (icns.length === 0) {
+      return;
+    }
+    if (this.options.horizontal === false) {
+      icns.eq(1).css('top', '').end()
+        .eq(2).css('top', '');
+    } else {
+      icns.eq(1).css('left', '').end()
+        .eq(2).css('left', '');
+    }
+    icns.eq(0).css({
+      'top': '',
+      'left': ''
+    });
+
+    this.picker.find('.colorpicker-saturation')
+      .css('backgroundColor', '');
+
+    this.picker.find('.colorpicker-alpha')
+      .css('backgroundColor', '');
+
+    this.picker.find('.colorpicker-color, .colorpicker-color div')
+      .css('backgroundColor', '');
+  },
   updateComponent: function(val) {
     var color;
 
@@ -292,6 +319,21 @@ Colorpicker.prototype = {
 
     return color.toString(false, this.format);
   },
+  // remove the component's backgroundColor
+  resetComponent: function() {
+    if (this.component !== false) {
+      var icn = this.component.find('i').eq(0);
+      if (icn.length > 0) {
+        icn.css({
+          'backgroundColor': ''
+        });
+      } else {
+        this.component.css({
+          'backgroundColor': ''
+        });
+      }
+    }
+  },
   update: function(force) {
     var val;
     if ((this.getValue(false) !== false) || (force === true)) {
@@ -312,6 +354,27 @@ Colorpicker.prototype = {
       color: this.color,
       value: val
     });
+  },
+  // reset color picker to non-selected
+  empty: function() {
+    // this.color = this.createColor('#ffffff');
+    this.resetComponent();
+
+    // update input
+    if (this.input !== false) {
+      this.input.prop('value', '');
+      this.input.trigger('change');
+    }
+
+    // update data
+    this.element.data('color', '');
+
+    this.resetPicker();
+    // this.element.trigger({
+    //   type: 'changeColor',
+    //   color: this.color,
+    //   value: ''
+    // });
   },
   /**
    * Creates a new color using the instance options
